@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RM Clínica - Saúde Integrada</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&display=swap');
+
+        /* ─── DESIGN TOKENS ─── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --gold-dark: #8B6914;
+            --gold-mid: #C9A84C;
+            --gold-light: #E8CC7A;
+            --champagne: #F5E6C3;
+            --cream: #FDFAF5;
+            --stone-light: #F7F4EF;
+            --stone-mid: #E8E2D8;
+            --ink: #1A1714;
+            --ink-soft: #2D2926;
+            --text-muted: #7A7168;
+            --text-faint: #AEA89E;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body { 
+            background: var(--cream); 
+            color: var(--ink); 
+            font-family: 'Jost', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+
+        /* ─── UTILITIES ─── */
+        .gold-text {
+            background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold-light) 45%, var(--gold-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #8B6914 0%, #D4AF60 50%, #8B6914 100%);
+            box-shadow: 0 8px 32px -4px rgba(139,105,20,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            color: white !important;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+        }
+
+        .btn-gold:hover {
+            box-shadow: 0 16px 48px -4px rgba(139,105,20,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+            filter: brightness(1.08);
+        }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-12px); } }
+        @keyframes pulse-ring { 0% { transform: scale(0.9); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+        @keyframes slowZoom { from { transform: scale(1); } to { transform: scale(1.08); } }
+
+        .reveal { opacity: 0; transform: translateY(48px); transition: opacity 0.9s cubic-bezier(0.23,1,0.32,1), transform 0.9s cubic-bezier(0.23,1,0.32,1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.15s; }
+        .reveal-delay-2 { transition-delay: 0.3s; }
+        .reveal-delay-3 { transition-delay: 0.45s; }
+
+        .hero-img { animation: slowZoom 20s ease-out infinite alternate; }
+        .badge-float { animation: float 6s ease-in-out infinite; }
+
+        /* ─── COMPONENTS ─── */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 48px; }
+
+        .luxury-card {
+            background: white;
+            border: 1px solid var(--stone-mid);
+            transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+        }
+        .luxury-card:hover {
+            border-color: var(--gold-mid);
+            box-shadow: 0 32px 80px -16px rgba(139,105,20,0.12), 0 8px 24px -4px rgba(0,0,0,0.06);
+            transform: translateY(-6px);
+        }
+
+        .gold-line {
+            width: 48px; height: 1px;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+        }
+
+        .hr-gold { border: none; height: 1px; background: linear-gradient(90deg, transparent, var(--gold-mid), transparent); opacity: 0.4; }
+
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            padding: 28px 0;
+            transition: all 0.6s cubic-bezier(0.23,1,0.32,1);
+        }
+        nav.nav-scrolled {
+            padding: 18px 0;
+            background: rgba(253,250,245,0.92);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 1px 0 rgba(139,105,20,0.1);
+        }
+
+        .mobile-menu {
+            position: fixed; inset: 0; z-index: 200;
+            background: var(--ink);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+        .mobile-menu.open { opacity: 1; visibility: visible; pointer-events: all; }
+
+        .hero-title { animation: fadeUp 1.2s cubic-bezier(0.23,1,0.32,1) 0.2s both; }
+        .hero-sub   { animation: fadeUp 1.2s cubic-bezier(0.23,1,0.32,1) 0.5s both; }
+        .hero-ctas  { animation: fadeUp 1.2s cubic-bezier(0.23,1,0.32,1) 0.8s both; }
+        .hero-badge { animation: fadeIn 1.4s ease 1.1s both; }
+
+        .flex-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
+
+        @media (max-width: 1024px) {
+            .container { padding: 0 24px; }
+            .desktop-nav { display: none !important; }
+            .mobile-burger { display: flex !important; }
+            .flex-grid { grid-template-columns: 1fr !important; gap: 60px !important; }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title h1 { font-size: 3rem !important; }
+            .stat-divider { display: none !important; }
+            .stat-container { border-right: none !important; width: 50% !important; margin: 20px 0 !important; }
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--cream); }
+        ::-webkit-scrollbar-thumb { background: var(--gold-mid); border-radius: 2px; }
+    </style>
+</head>
+<body>
+
+    <!-- ── NAVIGATION ── -->
+    <nav id="mainNav">
+        <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
+            <a href="#" style="text-decoration: none; display: flex; flex-direction: column; line-height: 1;">
+                <span class="serif" style="font-size: 1.6rem; font-weight: 500; color: var(--ink); letter-spacing: -0.02em;">
+                    RM <span class="gold-text">Clínica</span>
+                </span>
+                <span style="font-size: 8px; font-weight: 600; letter-spacing: 0.5em; text-transform: uppercase; color: var(--text-faint); margin-top: 2px;">
+                    Saúde Integrada
+                </span>
+            </a>
+
+            <div class="desktop-nav" style="display: flex; align-items: center; gap: 40px;">
+                <a href="#clinica" style="font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-decoration: none;">A Clínica</a>
+                <a href="#especialidades" style="font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-decoration: none;">Especialidades</a>
+                <a href="#domo" style="font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-decoration: none;">Domo Business</a>
+                <a href="#profissionais" style="font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-decoration: none;">Profissionais</a>
+                <a href="#pacientes" style="font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-decoration: none;">Pacientes</a>
+                <a href="#contato" class="btn-gold" style="padding: 14px 32px; border-radius: 100px; font-size: 10px;">Agendar</a>
+            </div>
+
+            <button id="menuBtn" style="display: none; background: none; border: none; cursor: pointer; color: var(--ink);">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ── MOBILE MENU ── -->
+    <div id="mobileMenu" class="mobile-menu">
+        <button id="closeMenu" style="position: absolute; top: 32px; right: 32px; color: var(--champagne); background: none; border: none; cursor: pointer;">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+        <svg width="56" height="56" viewBox="0 0 48 48" fill="none" class="badge-float">
+            <text x="4" y="38" font-family="Cormorant Garamond, serif" font-size="36" font-style="italic" font-weight="300" fill="url(#mg_mob)" letter-spacing="-1">RM</text>
+            <defs><linearGradient id="mg_mob" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8B6914"/><stop offset="50%" stop-color="#E8CC7A"/><stop offset="100%" stop-color="#8B6914"/></linearGradient></defs>
+        </svg>
+        <div style="height: 48px;"></div>
+        <nav style="display: flex; flex-direction: column; gap: 32px; text-align: center;">
+            <a href="#clinica" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">A Clínica</a>
+            <a href="#especialidades" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">Especialidades</a>
+            <a href="#domo" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">Domo Business</a>
+            <a href="#profissionais" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">Profissionais</a>
+            <a href="#pacientes" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">Pacientes</a>
+        </nav>
+        <div style="height: 64px;"></div>
+        <a href="#contato" class="btn-gold" style="padding: 18px 48px; border-radius: 100px;">Agendar Avaliação</a>
+    </div>
+
+    <!-- ── HERO ── -->
+    <header style="height: 100vh; min-height: 700px; position: relative; display: flex; align-items: center; overflow: hidden;">
+        <div style="position: absolute; inset: 0; overflow: hidden;">
+            <img id="heroImg" src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=2400" alt="Clinic" class="hero-img" style="width: 100%; height: 100%; object-fit: cover; transform-origin: center top;">
+            <div style="position: absolute; inset: 0; background: linear-gradient(105deg, rgba(26,23,20,0.82) 0%, rgba(26,23,20,0.5) 60%, rgba(26,23,20,0.2) 100%);"></div>
+            <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at 0% 50%, rgba(139,105,20,0.06) 0%, transparent 70%);"></div>
+        </div>
+
+        <div class="container" style="position: relative; z-index: 10; width: 100%;">
+            <div class="hero-badge" style="display: flex; align-items: center; gap: 16px; margin-bottom: 40px;">
+                <div class="gold-line"></div>
+                <span style="font-size: 9px; font-weight: 600; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold-light);">Domo Business · São Bernardo do Campo</span>
+            </div>
+
+            <div class="hero-title">
+                <h1 class="serif" style="font-size: clamp(3rem,7vw,6.5rem); font-weight: 300; color: white; line-height: 1.05; letter-spacing: -0.02em; max-width: 800px;">
+                    Onde o cuidado<br>
+                    <em class="gold-text" style="font-weight: 300; font-style: italic;">com a sua saúde</em><br>
+                    encontra a excelência.
+                </h1>
+            </div>
+
+            <div class="hero-sub" style="margin-top: 32px; max-width: 480px;">
+                <p style="color: rgba(255,255,255,0.65); font-size: 1.05rem; font-weight: 300; line-height: 1.7;">
+                    Uma clínica boutique de saúde integrada, projetada para quem valoriza precisão, ambiente e cuidado personalizado.
+                </p>
+            </div>
+
+            <div class="hero-ctas" style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 48px;">
+                <a href="#contato" class="btn-gold" style="padding: 20px 48px; border-radius: 100px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3em;">Agendar Avaliação</a>
+                <a href="#profissionais" style="padding: 20px 48px; border-radius: 100px; color: rgba(255,255,255,0.85); font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); transition: all 0.4s ease;">Locação de Salas</a>
+            </div>
+
+            <div class="hero-badge" style="margin-top: 72px; display: flex; align-items: center; gap: 32px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="display: flex; gap: 2px; color: var(--gold-light);">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <span style="color: rgba(255,255,255,0.5); font-size: 11px; letter-spacing: 0.1em;">Avaliação 5/5 • Pacientes satisfeitos</span>
+                </div>
+                <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.15);"></div>
+                <span style="color: rgba(255,255,255,0.4); font-size: 11px; letter-spacing: 0.08em;">Dra. Renata Miranda · CRO/SP</span>
+            </div>
+        </div>
+
+        <div id="scrollIndicator" style="position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); text-align: center; transition: 0.5s;">
+            <span style="font-size: 8px; font-weight: 600; letter-spacing: 0.4em; color: rgba(255,255,255,0.3); text-transform: uppercase;">Explorar</span>
+            <div style="width: 1px; height: 48px; background: linear-gradient(180deg, rgba(255,255,255,0.3), transparent); margin: 8px auto; animation: float 2s infinite;"></div>
+        </div>
+    </header>
+
+    <!-- ── STATS BAR ── -->
+    <section style="background: var(--ink); padding: 60px 0;">
+        <div class="container" style="display: flex; justify-content: center; flex-wrap: wrap;">
+            <div class="stat-container reveal" style="text-align: center; padding: 0 32px; position: relative;">
+                <div class="serif gold-text" style="font-size: 3.5rem; line-height: 1;">10+</div>
+                <div style="font-size: 9px; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; color: var(--text-faint); margin-top: 8px;">Anos de Experiência</div>
+                <div class="stat-divider" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 1px; height: 60px; background: rgba(255,255,255,0.07);"></div>
+            </div>
+            <div class="stat-container reveal reveal-delay-1" style="text-align: center; padding: 0 32px; position: relative;">
+                <div class="serif gold-text" style="font-size: 3.5rem; line-height: 1;">2.400+</div>
+                <div style="font-size: 9px; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; color: var(--text-faint); margin-top: 8px;">Pacientes Atendidos</div>
+                <div class="stat-divider" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 1px; height: 60px; background: rgba(255,255,255,0.07);"></div>
+            </div>
+            <div class="stat-container reveal reveal-delay-2" style="text-align: center; padding: 0 32px; position: relative;">
+                <div class="serif gold-text" style="font-size: 3.5rem; line-height: 1;">15+</div>
+                <div style="font-size: 9px; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; color: var(--text-faint); margin-top: 8px;">Especialidades</div>
+                <div class="stat-divider" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 1px; height: 60px; background: rgba(255,255,255,0.07);"></div>
+            </div>
+            <div class="stat-container reveal reveal-delay-3" style="text-align: center; padding: 0 32px;">
+                <div class="serif gold-text" style="font-size: 3.5rem; line-height: 1;">5★</div>
+                <div style="font-size: 9px; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; color: var(--text-faint); margin-top: 8px;">Avaliação Média</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── INTRO ── -->
+    <section id="clinica" style="padding: 120px 0; background: var(--cream);">
+        <div class="container">
+            <div class="flex-grid">
+                <div class="reveal" style="position: relative;">
+                    <div style="border-radius: 24px; overflow: hidden; aspect-ratio: 4/5; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.2);">
+                        <img src="https://images.unsplash.com/photo-1559839734-2b71f1e59850?auto=format&fit=crop&q=80&w=1000" alt="Dra. Renata" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="badge-float" style="position: absolute; bottom: -24px; right: -24px; background: white; border-radius: 20px; padding: 28px 32px; box-shadow: 0 24px 60px rgba(0,0,0,0.12); border: 1px solid var(--stone-mid); max-width: 260px;">
+                        <p class="serif gold-text" style="font-size: 1.5rem; font-style: italic;">Dra. Renata Miranda</p>
+                        <p style="font-size: 9px; font-weight: 600; letter-spacing: 0.35em; text-transform: uppercase; color: var(--text-faint);">Diretora Clínica · CRO/SP</p>
+                        <div style="margin-top: 12px; display: flex; gap: 4px; color: var(--gold-mid);">
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="reveal" style="padding-left: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+                        <div class="gold-line"></div>
+                        <span style="font-size: 9px; font-weight: 600; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold-mid);">Nossa Essência</span>
+                    </div>
+                    <h2 class="serif" style="font-size: clamp(2.2rem,3.5vw,3.8rem); font-weight: 300; line-height: 1.1; margin-bottom: 32px;">Um espaço de cuidado <br><em class="gold-text">concebido para você.</em></h2>
+                    <div style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.8;">
+                        <p style="margin-bottom: 24px;">A RM Clínica nasceu do desejo de transformar o cuidado com a saúde em uma experiência verdadeiramente diferente — onde cada detalhe foi pensado para transmitir segurança, exclusividade e acolhimento.</p>
+                        <p>Localizada no Domo Business, o mais sofisticado complexo corporativo do ABC Paulista, nossa clínica reúne odontologia de alta performance e especialidades médicas integradas em um ambiente premium.</p>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 48px;">
+                        <div style="display: flex; align-items: center; gap: 12px;"><div style="width: 6px; height: 6px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));"></div><span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.15em;">Precisão Clínica</span></div>
+                        <div style="display: flex; align-items: center; gap: 12px;"><div style="width: 6px; height: 6px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));"></div><span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.15em;">Ambiente Premium</span></div>
+                        <div style="display: flex; align-items: center; gap: 12px;"><div style="width: 6px; height: 6px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));"></div><span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.15em;">Cuidado Humano</span></div>
+                        <div style="display: flex; align-items: center; gap: 12px;"><div style="width: 6px; height: 6px; border-radius: 50%; background: linear-gradient(135deg, var(--gold-dark), var(--gold-light));"></div><span style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.15em;">Visão Integrada</span></div>
+                    </div>
+                    <div style="margin-top: 48px;">
+                        <a href="#contato" style="display: inline-flex; align-items: center; gap: 12px; color: var(--gold-dark); font-size: 11px; font-weight: 600; text-transform: uppercase; text-decoration: none; letter-spacing: 0.2em;">Conhecer a Clínica <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <hr class="hr-gold">
+
+    <!-- ── ESPECIALIDADES ── -->
+    <section id="especialidades" style="padding: 120px 0; background: var(--cream);">
+        <div class="container">
+            <div class="reveal" style="text-align: center; margin-bottom: 80px;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 24px;">
+                    <div class="gold-line"></div>
+                    <span style="font-size: 9px; font-weight: 600; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold-mid);">Artes Clínicas</span>
+                    <div class="gold-line"></div>
+                </div>
+                <h2 class="serif" style="font-size: clamp(2.5rem,4vw,4rem); font-weight: 300;">Especialidades <em class="gold-text">Integradas.</em></h2>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px;">
+                <!-- Odontologia -->
+                <div class="luxury-card reveal spec-item" style="border-radius: 20px; overflow: hidden;">
+                    <div style="height: 260px; overflow: hidden; position: relative;">
+                        <img src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=800" alt="Odonto" class="spec-img">
+                        <div style="position: absolute; top: 16px; left: 16px; background: rgba(139,105,20,0.85); padding: 6px 16px; border-radius: 100px;"><span style="font-size: 9px; color: white; text-transform: uppercase; font-weight: 600; letter-spacing: 0.3em;">Carro-chefe</span></div>
+                    </div>
+                    <div style="padding: 28px;">
+                        <h3 class="serif" style="font-size: 1.5rem; margin-bottom: 12px; font-weight: 400;">Odontologia Premium</h3>
+                        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.7;">Estética, implantes e reabilitação oral com tecnologia de ponta.</p>
+                        <div style="margin-top: 20px; display: flex; align-items: center; gap: 8px; color: var(--gold-dark); font-size: 11px; font-weight: 600; text-transform: uppercase;">Saiba mais <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+                    </div>
+                </div>
+                <!-- Saúde Integrada -->
+                <div class="luxury-card reveal reveal-delay-1 spec-item" style="border-radius: 20px; overflow: hidden;">
+                    <div style="height: 260px; overflow: hidden; position: relative;">
+                        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800" alt="Saude" class="spec-img">
+                        <div style="position: absolute; top: 16px; left: 16px; background: rgba(139,105,20,0.85); padding: 6px 16px; border-radius: 100px;"><span style="font-size: 9px; color: white; text-transform: uppercase; font-weight: 600; letter-spacing: 0.3em;">Exclusivo</span></div>
+                    </div>
+                    <div style="padding: 28px;">
+                        <h3 class="serif" style="font-size: 1.5rem; margin-bottom: 12px; font-weight: 400;">Saúde Integrada</h3>
+                        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.7;">Abordagem 360° para longevidade e qualidade de vida.</p>
+                        <div style="margin-top: 20px; display: flex; align-items: center; gap: 8px; color: var(--gold-dark); font-size: 11px; font-weight: 600; text-transform: uppercase;">Saiba mais <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+                    </div>
+                </div>
+                <!-- Medicina Clínica -->
+                <div class="luxury-card reveal reveal-delay-2 spec-item" style="border-radius: 20px; overflow: hidden;">
+                    <div style="height: 260px; overflow: hidden;"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=800" alt="Med" class="spec-img"></div>
+                    <div style="padding: 28px;">
+                        <h3 class="serif" style="font-size: 1.5rem; margin-bottom: 12px; font-weight: 400;">Medicina Clínica</h3>
+                        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.7;">Consultas especializadas em ambiente boutique e personalizado.</p>
+                        <div style="margin-top: 20px; display: flex; align-items: center; gap: 8px; color: var(--gold-dark); font-size: 11px; font-weight: 600; text-transform: uppercase;">Saiba mais <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+                    </div>
+                </div>
+                <!-- Estética Facial -->
+                <div class="luxury-card reveal reveal-delay-3 spec-item" style="border-radius: 20px; overflow: hidden;">
+                    <div style="height: 260px; overflow: hidden;"><img src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=800" alt="Estetica" class="spec-img"></div>
+                    <div style="padding: 28px;">
+                        <h3 class="serif" style="font-size: 1.5rem; margin-bottom: 12px; font-weight: 400;">Estética Facial</h3>
+                        <p style="font-size: 14px; color: var(--text-muted); line-height: 1.7;">Procedimentos naturais com resultados harmoniosos e refinados.</p>
+                        <div style="margin-top: 20px; display: flex; align-items: center; gap: 8px; color: var(--gold-dark); font-size: 11px; font-weight: 600; text-transform: uppercase;">Saiba mais <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── DOMO BUSINESS ── -->
+    <section id="domo" style="background: var(--ink); padding: 120px 0; position: relative; overflow: hidden;">
+        <div style="position: absolute; inset: 0; background-image: radial-gradient(circle at 20% 50%, rgba(139,105,20,0.06), transparent 60%), radial-gradient(circle at 80% 50%, rgba(139,105,20,0.04), transparent 60%);"></div>
+        <div class="container" style="position: relative; z-index: 10;">
+            <div class="flex-grid">
+                <div class="reveal" style="color: white;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;"><div class="gold-line"></div><span style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--gold-mid); letter-spacing: 0.5em;">Localização Premium</span></div>
+                    <h2 class="serif" style="font-size: clamp(2.2rem,3.5vw,4rem); font-weight: 300; margin-bottom: 32px; line-height: 1.1;">No epicentro do <br><em class="gold-text">ABC Paulista.</em></h2>
+                    <p style="color: rgba(255,255,255,0.55); font-size: 1.05rem; line-height: 1.8; margin-bottom: 48px;">O Domo Business é o endereço corporativo de maior prestígio da região. Uma torre de alto padrão com infraestrutura world-class, valet, restaurante corporativo e acesso direto às principais vias.</p>
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div style="display: flex; align-items: center; gap: 14px;"><div style="width: 18px; height: 18px; border-radius: 50%; background: rgba(139,105,20,0.2); display: flex; align-items: center; justify-content: center;"><svg width="10" height="10" fill="none" stroke="var(--gold-light)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><span style="color: rgba(255,255,255,0.7); font-size: 14px;">Valet parking incluso e estacionamento coberto</span></div>
+                        <div style="display: flex; align-items: center; gap: 14px;"><div style="width: 18px; height: 18px; border-radius: 50%; background: rgba(139,105,20,0.2); display: flex; align-items: center; justify-content: center;"><svg width="10" height="10" fill="none" stroke="var(--gold-light)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><span style="color: rgba(255,255,255,0.7); font-size: 14px;">Acesso à Marginal Pinheiros e SP-160 em minutos</span></div>
+                        <div style="display: flex; align-items: center; gap: 14px;"><div style="width: 18px; height: 18px; border-radius: 50%; background: rgba(139,105,20,0.2); display: flex; align-items: center; justify-content: center;"><svg width="10" height="10" fill="none" stroke="var(--gold-light)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><span style="color: rgba(255,255,255,0.7); font-size: 14px;">Restaurante corporativo e praça de alimentação</span></div>
+                        <div style="display: flex; align-items: center; gap: 14px;"><div style="width: 18px; height: 18px; border-radius: 50%; background: rgba(139,105,20,0.2); display: flex; align-items: center; justify-content: center;"><svg width="10" height="10" fill="none" stroke="var(--gold-light)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><span style="color: rgba(255,255,255,0.7); font-size: 14px;">Segurança 24h, controle de acesso biométrico</span></div>
+                        <div style="display: flex; align-items: center; gap: 14px;"><div style="width: 18px; height: 18px; border-radius: 50%; background: rgba(139,105,20,0.2); display: flex; align-items: center; justify-content: center;"><svg width="10" height="10" fill="none" stroke="var(--gold-light)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg></div><span style="color: rgba(255,255,255,0.7); font-size: 14px;">A 10 min do aeroporto de Congonhas</span></div>
+                    </div>
+                    <div style="margin-top: 48px; display: flex; align-items: center; gap: 20px;">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+                        <span style="color: rgba(255,255,255,0.4); font-size: 13px; font-style: italic;">R. José Versolato, 111, São Bernardo do Campo — SP</span>
+                    </div>
+                </div>
+                <div class="reveal reveal-delay-1" style="border-radius: 24px; overflow: hidden; aspect-ratio: 1; box-shadow: 0 40px 100px rgba(0,0,0,0.4);">
+                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200" alt="Predio" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.85);">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PACIENTES ── -->
+    <section id="pacientes" style="padding: 120px 0; background: var(--stone-light);">
+        <div class="container">
+            <div class="reveal" style="text-align: center; margin-bottom: 80px;">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 24px;">
+                    <div class="gold-line"></div>
+                    <span style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--gold-mid); letter-spacing: 0.5em;">Para Quem Nos Escolhe</span>
+                    <div class="gold-line"></div>
+                </div>
+                <h2 class="serif" style="font-size: clamp(2.5rem,4vw,4rem); font-weight: 300;">Uma experiência pensada <em class="gold-text">para você.</em></h2>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2px; border-radius: 24px; overflow: hidden; background: var(--stone-mid); border: 1px solid var(--stone-mid);">
+                <div class="reveal" style="padding: 56px 40px; background: white; height: 100%;">
+                    <div style="font-size: 28px; margin-bottom: 24px;">⏱</div>
+                    <p style="text-decoration: line-through; color: var(--text-faint); font-size: 12px; margin-bottom: 16px; font-weight: 500; letter-spacing: 0.05em;">Atendimentos impessoais e corridos</p>
+                    <p class="serif" style="font-size: 1.4rem; line-height: 1.4; color: var(--ink);">Tempo dedicado exclusivamente a você</p>
+                </div>
+                <div class="reveal reveal-delay-1" style="padding: 56px 40px; background: white; height: 100%;">
+                    <div style="font-size: 28px; margin-bottom: 24px;">⚕</div>
+                    <p style="text-decoration: line-through; color: var(--text-faint); font-size: 12px; margin-bottom: 16px; font-weight: 500; letter-spacing: 0.05em;">Falta de integração entre especialidades</p>
+                    <p class="serif" style="font-size: 1.4rem; line-height: 1.4; color: var(--ink);">Saúde total em um único endereço</p>
+                </div>
+                <div class="reveal reveal-delay-2" style="padding: 56px 40px; background: white; height: 100%;">
+                    <div style="font-size: 28px; margin-bottom: 24px;">✦</div>
+                    <p style="text-decoration: line-through; color: var(--text-faint); font-size: 12px; margin-bottom: 16px; font-weight: 500; letter-spacing: 0.05em;">Ambientes clínicos frios e sem conforto</p>
+                    <p class="serif" style="font-size: 1.4rem; line-height: 1.3; color: var(--ink);">Espaço premium projetado para acolher</p>
+                </div>
+                <div class="reveal reveal-delay-3" style="padding: 56px 40px; background: white; height: 100%;">
+                    <div style="font-size: 28px; margin-bottom: 24px;">◎</div>
+                    <p style="text-decoration: line-through; color: var(--text-faint); font-size: 12px; margin-bottom: 16px; font-weight: 500; letter-spacing: 0.05em;">Insegurança com diagnósticos e planos</p>
+                    <p class="serif" style="font-size: 1.4rem; line-height: 1.3; color: var(--ink);">Transparência e clareza em cada etapa</p>
+                </div>
+            </div>
+            <div class="reveal" style="text-align: center; margin-top: 64px;">
+                <a href="#contato" class="btn-gold" style="padding: 20px 56px; font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase;">Agendar Minha Avaliação</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PROFISSIONAIS ── -->
+    <section id="profissionais" style="padding: 120px 0; background: var(--cream);">
+        <div class="container">
+            <div class="flex-grid">
+                <div class="reveal" style="position: relative;">
+                    <div style="border-radius: 24px; overflow: hidden; aspect-ratio: 4/3; box-shadow: 0 40px 100px -20px rgba(0,0,0,0.15);">
+                        <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200" alt="Consultório" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <div class="badge-float" style="position: absolute; top: -24px; left: -24px; background: white; padding: 24px 32px; border-radius: 16px; border: 1px solid var(--stone-mid); box-shadow: 0 20px 60px rgba(0,0,0,0.08);">
+                        <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--text-faint); letter-spacing: 0.3em; margin-bottom: 4px;">Disponível</div>
+                        <div class="serif gold-text" style="font-size: 1.5rem; font-weight: 400;">Salas Prontas</div>
+                    </div>
+                </div>
+                <div class="reveal reveal-delay-1" style="padding-left: 20px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+                        <div class="gold-line"></div>
+                        <span style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--gold-mid); letter-spacing: 0.5em;">Business Residence</span>
+                    </div>
+                    <h2 class="serif" style="font-size: clamp(2.2rem,3.5vw,3.8rem); font-weight: 300; margin-bottom: 32px; line-height: 1.1;">Sua base clínica no <br><em class="gold-text">mais alto padrão.</em></h2>
+                    <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; margin-bottom: 40px;">Elevamos o padrão da sua prática clínica com salas odontológicas e consultórios médicos prontos para atender, no endereço mais prestigioso do ABC.</p>
+                    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 56px;">
+                        <div style="display: flex; align-items: center; gap: 14px;"><svg width="18" height="18" fill="none" stroke="var(--gold-mid)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size: 14px;">Sala odontológica de alta performance</span></div>
+                        <div style="display: flex; align-items: center; gap: 14px;"><svg width="18" height="18" fill="none" stroke="var(--gold-mid)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size: 14px;">Consultório médico com acabamento premium</span></div>
+                        <div style="display: flex; align-items: center; gap: 14px;"><svg width="18" height="18" fill="none" stroke="var(--gold-mid)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size: 14px;">Recepção exclusiva e apoio administrativo</span></div>
+                        <div style="display: flex; align-items: center; gap: 14px;"><svg width="18" height="18" fill="none" stroke="var(--gold-mid)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size: 14px;">Biossegurança e TI inclusos no pacote</span></div>
+                        <div style="display: flex; align-items: center; gap: 14px;"><svg width="18" height="18" fill="none" stroke="var(--gold-mid)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span style="font-size: 14px;">Locação por hora, turno ou contrato fixo</span></div>
+                    </div>
+                    <a href="#contato" class="btn-gold" style="padding: 18px 44px; font-size: 10px; font-weight: 600; letter-spacing: 0.25em; text-transform: uppercase;">Consultar Disponibilidade</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── TESTIMUNHOS ── -->
+    <section style="padding: 120px 0; background: var(--stone-light);">
+        <div class="container">
+            <div class="reveal" style="text-align: center; margin-bottom: 80px;"><h2 class="serif" style="font-size: clamp(2.2rem,3.5vw,3.8rem); font-weight: 300;">Quem viveu a <em class="gold-text">experiência.</em></h2></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+                <div class="luxury-card reveal" style="padding: 40px 36px; border-radius: 20px;">
+                    <div style="display: flex; gap: 3px; color: var(--gold-mid); margin-bottom: 24px;">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <p class="serif" style="font-style: italic; font-size: 1.2rem; margin-bottom: 28px; line-height: 1.7; color: var(--ink-soft);">"Ambiente impecável, atendimento extremamente humanizado. Me senti segura desde o primeiro momento. Não existe nada igual na região."</p>
+                    <div style="display: flex; align-items: center; gap: 14px;"><div style="width: 44px; height: 44px; background: var(--stone-mid); border-radius: 50%;"></div><div><p style="font-weight: 600; font-size: 13px;">Cláudia S.</p><p style="font-size: 11px; color: var(--text-faint); letter-spacing: 0.05em; text-transform: uppercase;">Paciente · SBC</p></div></div>
+                </div>
+                <div class="luxury-card reveal reveal-delay-1" style="padding: 40px 36px; border-radius: 20px;">
+                    <div style="display: flex; gap: 3px; color: var(--gold-mid); margin-bottom: 24px;">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <p class="serif" style="font-style: italic; font-size: 1.2rem; margin-bottom: 28px; line-height: 1.7; color: var(--ink-soft);">"O Domo Business já é premium por natureza, e a RM Clínica reflete cada detalhe desse padrão. Dra. Renata é excepcional."</p>
+                    <div style="display: flex; align-items: center; gap: 14px;"><div style="width: 44px; height: 44px; background: var(--stone-mid); border-radius: 50%;"></div><div><p style="font-weight: 600; font-size: 13px;">Marcos R.</p><p style="font-size: 11px; color: var(--text-faint); letter-spacing: 0.05em; text-transform: uppercase;">Profissional de Saúde</p></div></div>
+                </div>
+                <div class="luxury-card reveal reveal-delay-2" style="padding: 40px 36px; border-radius: 20px;">
+                    <div style="display: flex; gap: 3px; color: var(--gold-mid); margin-bottom: 24px;">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                    <p class="serif" style="font-style: italic; font-size: 1.2rem; margin-bottom: 28px; line-height: 1.7; color: var(--ink-soft);">"Praticidade, conforto e excelência clínica no mesmo lugar. Jamais trocarei por outro espaço."</p>
+                    <div style="display: flex; align-items: center; gap: 14px;"><div style="width: 44px; height: 44px; background: var(--stone-mid); border-radius: 50%;"></div><div><p style="font-weight: 600; font-size: 13px;">Juliana M.</p><p style="font-size: 11px; color: var(--text-faint); letter-spacing: 0.05em; text-transform: uppercase;">Paciente · Sto André</p></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── CTA FINAL ── -->
+    <section id="contato" style="position: relative; overflow: hidden; min-height: 600px; display: flex; align-items: center;">
+        <div style="position: absolute; inset: 0;"><img src="https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&q=80&w=2000" alt="" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(0.25);"></div>
+        <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(26,23,20,0.9) 0%, rgba(26,23,20,0.7) 100%);"></div>
+        <div class="container reveal" style="position: relative; z-index: 10; text-align: center;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 32px;"><div class="gold-line"></div><span style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--gold-mid); letter-spacing: 0.5em;">Próximo passo</span><div class="gold-line"></div></div>
+            <h2 class="serif" style="font-size: clamp(2.5rem,5vw,5.5rem); font-weight: 300; color: white; line-height: 1.05; margin-bottom: 32px;">Pronto para o seu <br><em class="gold-text">nível mais elevado</em> em saúde?</h2>
+            <p style="color: rgba(255,255,255,0.5); font-size: 1.05rem; margin-bottom: 56px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.7;">Agende sua avaliação e descubra o que significa cuidar da saúde sem concessões.</p>
+            <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
+                <a href="https://wa.me/551199999999" target="_blank" class="btn-gold" style="padding: 20px 48px; display: flex; align-items: center; gap: 10px; font-size: 10px;">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Agendar via WhatsApp
+                </a>
+                <a href="#profissionais" style="padding: 20px 48px; border-radius: 100px; color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.2); text-decoration: none; font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase;">Locação de Salas</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── FOOTER ── -->
+    <footer style="background: var(--ink); color: rgba(255,255,255,0.4); padding: 80px 0 40px;">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 64px;" id="footerGrid">
+                <div>
+                    <div style="margin-bottom: 24px;"><span class="serif" style="font-size: 1.8rem; color: white;">RM <span class="gold-text">Clínica</span></span><div style="font-size: 8px; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 4px; color: rgba(255,255,255,0.2);">Integrated Health</div></div>
+                    <p style="font-size: 13px; line-height: 1.8; max-width: 280px;">Excelência clínica no coração do ABC Paulista. Cuidado integrado, ambiente premium e atendimento verdadeiramente humano.</p>
+                </div>
+                <div><h4 style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4em; color: rgba(255,255,255,0.6); margin-bottom: 24px;">Explorar</h4><ul style="list-style: none; display: flex; flex-direction: column; gap: 14px; font-size: 13px;"><li><a href="#clinica" style="color: inherit; text-decoration: none;">O Conceito</a></li><li><a href="#especialidades" style="color: inherit; text-decoration: none;">Especialidades</a></li><li><a href="#pacientes" style="color: inherit; text-decoration: none;">Para Pacientes</a></li><li><a href="#profissionais" style="color: inherit; text-decoration: none;">Para Profissionais</a></li></ul></div>
+                <div><h4 style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4em; color: rgba(255,255,255,0.6); margin-bottom: 24px;">Endereço</h4><p style="font-size: 13px; font-style: italic; line-height: 1.6;">R. José Versolato, 111<br>Domo Business · SBC</p></div>
+                <div>
+                    <h4 style="font-size: 9px; font-weight: 700; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 24px;">Resp. Técnica</h4>
+                    <div style="padding: 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(139,105,20,0.2); border-radius: 14px;"><p class="serif" style="color: white; font-style: italic; font-size: 1.1rem;">Dra. Renata Miranda</p><p style="font-size: 10px; margin-top: 4px; color: rgba(255,255,255,0.3); text-transform: uppercase;">CRO/SP · 00.000</p></div>
+                </div>
+            </div>
+            <style>@media (max-width: 768px) { #footerGrid { grid-template-columns: 1fr !important; gap: 40px !important; } }</style>
+            <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 32px; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em;">© 2025 RM Clínica Integrada · Todos os direitos reservados</div>
+        </div>
+    </footer>
+
+    <!-- ── WHATSAPP FLOAT ── -->
+    <div id="waFloat" style="position: fixed; bottom: 36px; right: 36px; z-index: 150; opacity: 0; transform: scale(0.8); transition: 0.5s;">
+        <a href="https://wa.me/551199999999" target="_blank" style="display: block; position: relative; text-decoration: none;">
+            <div style="position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(139,105,20,0.3); animation: pulse-ring 2s infinite;"></div>
+            <div class="btn-gold" style="width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0;"><svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div>
+        </a>
+    </div>
+
+    <script>
+        const nav = document.getElementById('mainNav');
+        const heroImg = document.getElementById('heroImg');
+        const scrollInd = document.getElementById('scrollIndicator');
+        const waFloat = document.getElementById('waFloat');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        window.onscroll = () => {
+            const y = window.scrollY;
+            if (y > 60) {
+                nav.classList.add('nav-scrolled');
+                scrollInd.style.opacity = '0';
+                waFloat.style.opacity = '1';
+                waFloat.style.transform = 'scale(1)';
+            } else {
+                nav.classList.remove('nav-scrolled');
+                scrollInd.style.opacity = '1';
+                waFloat.style.opacity = '0';
+                waFloat.style.transform = 'scale(0.8)';
+            }
+            // Exact Parallax scale based on scroll
+            heroImg.style.transform = `translateY(${y * 0.25}px) scale(${1.1 + (y * 0.0001)})`;
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        document.getElementById('menuBtn').onclick = () => mobileMenu.classList.add('open');
+        document.getElementById('closeMenu').onclick = () => mobileMenu.classList.remove('open');
+        document.querySelectorAll('.mob-link').forEach(l => l.onclick = () => mobileMenu.classList.remove('open'));
+    </script>
+</body>
+</html>
