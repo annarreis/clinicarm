@@ -6,12 +6,17 @@
     <title>RM Clínica - Saúde e Odontologia Integrada</title>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&display=swap');
+        /* Importação ampliada de fontes via Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Jost:wght@200;300;400;500;600&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&family=Poppins:wght@300;400;500;600&family=Cinzel:wght@400;500;600&family=Lato:wght@300;400;700&family=Merriweather:wght@300;400;700&display=swap');
 
         /* ─── DESIGN TOKENS ─── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
+            /* Variáveis de Tipografia Dinâmica */
+            --font-base: 'Jost', sans-serif;
+            --font-serif: 'Cormorant Garamond', Georgia, serif;
+
             /* Tons Dourados */
             --gold-dark: #8B6914;
             --gold-mid: #C9A84C;
@@ -30,20 +35,18 @@
             --text-faint: #ADB5BD;
         }
 
-        /* */
         html { scroll-behavior: smooth; font-size: 16px; }
 
         body { 
             background: var(--cream); 
             color: var(--ink); 
-            font-family: 'Jost', sans-serif;
+            font-family: var(--font-base);
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
-            /* Proteção contra zoom extremo quebrando o layout horizontal */
             min-width: 320px;
         }
 
-        .serif { font-family: 'Cormorant Garamond', Georgia, serif; }
+        .serif { font-family: var(--font-serif); }
 
         /* ─── UTILITIES ─── */
         .gold-text {
@@ -71,7 +74,6 @@
             filter: brightness(1.08);
         }
 
-        /* */
         /* ─── ANIMATIONS ─── */
         @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -139,7 +141,7 @@
             background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
         }
 
-        /* */
+        /* NAVIGATION */
         nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
             padding: 28px 0;
@@ -164,6 +166,56 @@
         }
         .mobile-menu.open { opacity: 1; visibility: visible; pointer-events: all; }
 
+        /* FONT SWITCHER SELECT */
+        .font-selector {
+            position: fixed; bottom: 36px; left: 36px; z-index: 150;
+            background: white; padding: 12px 16px; border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid var(--stone-mid);
+            transition: 0.3s ease;
+        }
+        .font-selector select {
+            border: 1px solid var(--stone-mid); padding: 6px 10px; border-radius: 4px;
+            font-size: 12px; color: var(--ink); background: var(--cream); outline: none;
+            cursor: pointer; font-family: var(--font-base);
+        }
+
+        /* GALLERY (SLIDER) */
+        .domo-slide { 
+            opacity: 0; 
+            transition: opacity 0.8s ease-in-out; 
+            position: absolute; inset: 0; 
+            width: 100%; height: 100%; 
+            object-fit: cover; 
+            z-index: 0;
+        }
+        .domo-slide.active { opacity: 1; z-index: 1; }
+        
+        .gallery-btn {
+            position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3);
+            color: white; width: 48px; height: 48px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+        }
+        .gallery-btn:hover { background: var(--gold-mid); border-color: var(--gold-mid); transform: translateY(-50%) scale(1.05); }
+        .gallery-btn.prev { left: 24px; }
+        .gallery-btn.next { right: 24px; }
+        .gallery-expand {
+            position: absolute; top: 24px; right: 24px; z-index: 10;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);
+            color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s;
+        }
+        .gallery-expand:hover { background: var(--gold-mid); border-color: var(--gold-mid); }
+
+        /* LIGHTBOX */
+        #lightbox {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999;
+            display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.4s ease;
+        }
+        #lightbox.open { display: flex; opacity: 1; }
+        #lightbox-img { max-width: 90vw; max-height: 90vh; object-fit: contain; box-shadow: 0 20px 60px rgba(0,0,0,0.5); border-radius: 8px; }
+
         /* ─── MULTI-PAGE SYSTEM ─── */
         .page-section { display: none; animation: fadeIn 0.8s ease; }
         .page-active { display: block; }
@@ -176,12 +228,10 @@
 
         .flex-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
 
-        /* LISTAS DE EQUIPAMENTOS */
         .equip-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
         .equip-list li { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--text-muted); }
         .equip-list li::before { content: ""; width: 6px; height: 6px; background: var(--gold-mid); border-radius: 50%; }
 
-        /* */
         @media (max-width: 1024px) {
             .container { padding: 0 24px; }
             .desktop-nav { display: none !important; }
@@ -193,8 +243,8 @@
             .hero-title h1 { font-size: 3rem !important; }
             #footerGrid { grid-template-columns: 1fr !important; gap: 40px !important; }
             .equip-list { grid-template-columns: 1fr; }
+            .font-selector { bottom: 16px; left: 16px; padding: 8px 12px; }
             
-            /* FIX: Previne que o badge flutuante sobreponha o conteúdo no Mobile */
             .badge-float {
                 position: relative !important;
                 top: auto !important;
@@ -215,16 +265,27 @@
 </head>
 <body>
 
+    <!-- ── FONT SWITCHER WIDGET ── -->
+    <div class="font-selector">
+        <label for="fontSelect" style="font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); display: block; margin-bottom: 6px;">Tipografia</label>
+        <select id="fontSelect" onchange="changeFontTheme(this.value)">
+            <option value="default">Jost & Cormorant (Padrão)</option>
+            <option value="modern">Inter & Playfair (Moderno)</option>
+            <option value="elegant">Montserrat & Lora (Elegante)</option>
+            <option value="luxury">Poppins & Cinzel (Luxo)</option>
+            <option value="classic">Lato & Merriweather (Clássico)</option>
+        </select>
+    </div>
+
     <!-- ── NAVIGATION ── -->
     <nav id="mainNav">
         <div class="container" style="display: flex; align-items: center; justify-content: space-between;">
-            <a href="javascript:void(0)" onclick="navigateTo('home')" style="text-decoration: none; display: flex; flex-direction: column; line-height: 1;">
-                <span class="serif" style="font-size: 1.6rem; font-weight: 500; color: var(--ink); letter-spacing: -0.02em;">
-                    RM <span class="gold-text">Clínica</span>
-                </span>
-                <span style="font-size: 8px; font-weight: 600; letter-spacing: 0.5em; text-transform: uppercase; color: var(--text-faint); margin-top: 2px;">
-                    Saúde e Odontologia Integrada
-                </span>
+            
+            <!-- LOGO NA NAVBAR -->
+            <a href="javascript:void(0)" onclick="navigateTo('home')" style="text-decoration: none; display: flex; align-items: center;">
+                <div style="background: white; padding: 4px; border-radius: 6px; display: inline-flex; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <img src="logo.png" alt="RM Clínica" style="height: 60px; width: auto; display: block; border-radius: 4px;">
+                </div>
             </a>
 
             <div class="desktop-nav" style="display: flex; align-items: center; gap: 40px;">
@@ -232,7 +293,7 @@
                 <a href="javascript:void(0)" onclick="navigateTo('odonto')" class="nav-link" data-page="odonto" style="font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-decoration: none;">Odontologia</a>
                 <a href="javascript:void(0)" onclick="navigateTo('saude')" class="nav-link" data-page="saude" style="font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-decoration: none;">Saúde Integrada</a>
                 <a href="javascript:void(0)" onclick="navigateTo('domo-internal')" class="nav-link" data-page="domo-internal" style="font-size: 10px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); text-decoration: none;">Domo Business</a>
-                <a href="#contato" class="btn-gold" style="padding: 14px 32px; border-radius: 100px; font-size: 10px;">Agendar</a>
+                <a href="#contato" class="btn-gold" style="padding: 14px 32px; border-radius: 100px; font-size: 10px;">Agendar consulta</a>
             </div>
 
             <button id="menuBtn" style="display: none; background: none; border: none; cursor: pointer; color: var(--ink);" class="mobile-burger">
@@ -246,28 +307,27 @@
         <button id="closeMenu" style="position: absolute; top: 32px; right: 32px; color: var(--champagne); background: none; border: none; cursor: pointer;">
             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6"/></svg>
         </button>
-        <svg width="56" height="56" viewBox="0 0 48 48" fill="none" style="animation: float 6s ease-in-out infinite;">
-            <text x="4" y="38" font-family="Cormorant Garamond, serif" font-size="36" font-style="italic" font-weight="300" fill="url(#mg_mob)" letter-spacing="-1">RM</text>
-            <defs><linearGradient id="mg_mob" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8B6914"/><stop offset="50%" stop-color="#E8CC7A"/><stop offset="100%" stop-color="#8B6914"/></linearGradient></defs>
-        </svg>
+        
+        <!-- LOGO NO MENU MOBILE -->
+        <div style="background: white; padding: 8px; border-radius: 12px; animation: float 6s ease-in-out infinite;">
+            <img src="logo.png" alt="RM Clínica" style="height: 72px; width: auto; display: block; border-radius: 8px;">
+        </div>
+
         <div style="height: 48px;"></div>
         <nav style="display: flex; flex-direction: column; gap: 32px; text-align: center;">
-            <a href="javascript:void(0)" onclick="navigateTo('home')" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">A Clínica</a>
-            <a href="javascript:void(0)" onclick="navigateTo('odonto')" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">Odontologia</a>
-            <a href="javascript:void(0)" onclick="navigateTo('saude')" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">Saúde Integrada</a>
-            <a href="javascript:void(0)" onclick="navigateTo('bemestar')" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">Bem-Estar</a>
-            <a href="javascript:void(0)" onclick="navigateTo('domo-internal')" class="mob-link" style="font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; color: white; text-decoration: none;">Domo Business</a>
+            <a href="javascript:void(0)" onclick="navigateTo('home')" class="mob-link serif" style="font-size: 2.2rem; color: white; text-decoration: none;">A Clínica</a>
+            <a href="javascript:void(0)" onclick="navigateTo('odonto')" class="mob-link serif" style="font-size: 2.2rem; color: white; text-decoration: none;">Odontologia</a>
+            <a href="javascript:void(0)" onclick="navigateTo('saude')" class="mob-link serif" style="font-size: 2.2rem; color: white; text-decoration: none;">Saúde Integrada</a>
+            <a href="javascript:void(0)" onclick="navigateTo('bemestar')" class="mob-link serif" style="font-size: 2.2rem; color: white; text-decoration: none;">Bem-Estar</a>
+            <a href="javascript:void(0)" onclick="navigateTo('domo-internal')" class="mob-link serif" style="font-size: 2.2rem; color: white; text-decoration: none;">Domo Business</a>
         </nav>
         <div style="height: 64px;"></div>
-        <a href="#contato" class="btn-gold" style="padding: 18px 48px; border-radius: 100px;">Agendar Avaliação</a>
+        <a href="#contato" class="btn-gold" style="padding: 18px 48px; border-radius: 100px;">Agendar consulta</a>
     </div>
 
-    <!-- -->
     <!-- ── 1. PAGE: HOME ── -->
     <main id="page-home" class="page-section page-active">
-        
         <!-- HERO -->
-        <!-- FIX: min-height e padding em vez de height fixa previne sobreposição no zoom -->
         <header style="min-height: 100vh; padding: 140px 0 80px; position: relative; display: flex; align-items: center; overflow: hidden;">
             <div style="position: absolute; inset: 0; overflow: hidden;">
                 <img id="heroImg" src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=2400" alt="Clinic" class="hero-img" style="width: 100%; height: 100%; object-fit: cover; transform-origin: center top;">
@@ -276,7 +336,10 @@
             </div>
 
             <div class="container" style="position: relative; z-index: 10; width: 100%;">
-                <div class="hero-badge" style="display: flex; align-items: center; gap: 16px; margin-bottom: 40px; animation: fadeIn 1.4s ease 1.1s both;">
+                
+                
+
+                <div class="hero-badge" style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; animation: fadeIn 1.4s ease 1.1s both;">
                     <div class="gold-line"></div>
                 </div>
 
@@ -295,7 +358,7 @@
                 </div>
 
                 <div class="hero-ctas" style="display: flex; flex-wrap: wrap; gap: 16px; margin-top: 48px; animation: fadeUp 1.2s cubic-bezier(0.23,1,0.32,1) 0.8s both;">
-                    <a href="#contato" class="btn-gold" style="padding: 20px 48px; border-radius: 100px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3em;">Agendar Avaliação</a>
+                    <a href="#contato" class="btn-gold" style="padding: 20px 48px; border-radius: 100px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3em;">Agendar consulta</a>
                     <a href="javascript:void(0)" onclick="navigateTo('domo-internal')" style="padding: 20px 48px; border-radius: 100px; color: rgba(255,255,255,0.9); font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; text-decoration: none; border: 1px solid rgba(255,255,255,0.3); transition: all 0.4s ease;">Locação de Salas</a>
                 </div>
 
@@ -335,8 +398,8 @@
                             <div style="margin-top: 12px; display: flex; gap: 4px; color: var(--gold-mid);">
                                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L1２ ２z"/></svg>
-                                <svg width="１４" height="１４" fill="currentColor" viewBox="０ ０ ２４  ２４"><path d="Ｍ１２  ２ｌ３．０９  ６．２６Ｌ２２  ９．２７ｌ－５  ４．８７  １．１８  ６．８８Ｌ１２  １７．７７ｌ－６．１８  ３．２５Ｌ７  １４．１４  ２  ９．２７ｌ６．９１－１．０１Ｌ１２  ２ｚ    "/></svg>
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                                 <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                             </div>
                         </div>
@@ -362,7 +425,7 @@
             </div>
         </section>
 
-        <!-- SELEÇÃO DE CATEGORIAS (TRÊS PILARES) -->
+        <!-- SELEÇÃO DE CATEGORIAS -->
         <section id="especialidades-home" style="padding: 100px 0; background: white;">
             <div class="container">
                 <div style="text-align: center; margin-bottom: 64px;">
@@ -409,13 +472,13 @@
                         <a href="javascript:void(0)" onclick="navigateTo('domo-internal')" class="btn-gold" style="padding: 16px 40px; border-radius: 100px; font-size: 10px;">Ver Coworking Saúde</a>
                     </div>
                     <div class="reveal" style="border-radius: 24px; overflow: hidden; aspect-ratio: 1; box-shadow: 0 40px 100px rgba(52, 58, 64, 0.4);">
-                        <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200" alt="Domo Business" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="domotorres01.jpg" alt="Domo Business" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PACIENTES (EXPERIÊNCIA) -->
+        <!-- PACIENTES -->
         <section id="pacientes" style="padding: 120px 0; background: var(--stone-light);">
             <div class="container">
                 <div class="reveal" style="text-align: center; margin-bottom: 80px;">
@@ -428,22 +491,30 @@
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2px; border-radius: 24px; overflow: hidden; background: var(--stone-mid); border: 1px solid var(--stone-mid);">
                     <div class="reveal" style="padding: 56px 40px; background: white; height: 100%;">
-                        <div style="font-size: 28px; margin-bottom: 24px;">⏱</div>
+                        <div style="font-size: 28px; margin-bottom: 24px;">
+                            <svg width="32" height="32" fill="none" stroke="var(--gold-mid)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
                         <p style="text-decoration: line-through; color: var(--text-faint); font-size: 12px; margin-bottom: 16px; font-weight: 500; letter-spacing: 0.05em;">Atendimentos impessoais e corridos</p>
                         <p class="serif" style="font-size: 1.4rem; line-height: 1.4; color: var(--ink);">Tempo dedicado exclusivamente a você</p>
                     </div>
                     <div class="reveal" style="padding: 56px 40px; background: white; height: 100%;">
-                        <div style="font-size: 28px; margin-bottom: 24px;">⚕</div>
+                        <div style="font-size: 28px; margin-bottom: 24px;">
+                            <svg width="32" height="32" fill="none" stroke="var(--gold-mid)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                        </div>
                         <p style="text-decoration: line-through; color: var(--text-faint); font-size: 12px; margin-bottom: 16px; font-weight: 500; letter-spacing: 0.05em;">Falta de integração entre especialidades</p>
                         <p class="serif" style="font-size: 1.4rem; line-height: 1.4; color: var(--ink);">Saúde total em um único endereço</p>
                     </div>
                     <div class="reveal" style="padding: 56px 40px; background: white; height: 100%;">
-                        <div style="font-size: 28px; margin-bottom: 24px;">✦</div>
+                        <div style="font-size: 28px; margin-bottom: 24px;">
+                            <svg width="32" height="32" fill="none" stroke="var(--gold-mid)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                        </div>
                         <p style="text-decoration: line-through; color: var(--text-faint); font-size: 12px; margin-bottom: 16px; font-weight: 500; letter-spacing: 0.05em;">Ambientes clínicos frios e sem conforto</p>
                         <p class="serif" style="font-size: 1.4rem; line-height: 1.3; color: var(--ink);">Espaço premium projetado para acolher</p>
                     </div>
                     <div class="reveal" style="padding: 56px 40px; background: white; height: 100%;">
-                        <div style="font-size: 28px; margin-bottom: 24px;">◎</div>
+                        <div style="font-size: 28px; margin-bottom: 24px;">
+                            <svg width="32" height="32" fill="none" stroke="var(--gold-mid)" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
                         <p style="text-decoration: line-through; color: var(--text-faint); font-size: 12px; margin-bottom: 16px; font-weight: 500; letter-spacing: 0.05em;">Insegurança com diagnósticos e planos</p>
                         <p class="serif" style="font-size: 1.4rem; line-height: 1.3; color: var(--ink);">Transparência e clareza em cada etapa</p>
                     </div>
@@ -451,13 +522,13 @@
             </div>
         </section>
 
-        <!-- PROFISSIONAIS (BUSINESS RESIDENCE) -->
+        <!-- PROFISSIONAIS -->
         <section id="profissionais" style="padding: 120px 0; background: var(--cream);">
             <div class="container">
                 <div class="flex-grid">
                     <div class="reveal" style="position: relative;">
                         <div style="border-radius: 24px; overflow: hidden; aspect-ratio: 4/3; box-shadow: 0 40px 100px -20px rgba(52, 58, 64, 0.15);">
-                            <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&q=80&w=1200" alt="Consultório" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="domotorres05.jpg" alt="Consultório" style="width: 100%; height: 100%; object-fit: cover;">
                         </div>
                         <div class="badge-float" style="position: absolute; top: -24px; left: -24px; background: white; padding: 24px 32px; border-radius: 16px; border: 1px solid var(--stone-mid); box-shadow: 0 20px 60px rgba(52, 58, 64, 0.08);">
                             <div style="font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--text-faint); letter-spacing: 0.3em; margin-bottom: 4px;">Disponível</div>
@@ -536,7 +607,7 @@
                 <div style="display: flex; justify-content: center; gap: 16px; flex-wrap: wrap;">
                     <a href="https://wa.me/551199999999" target="_blank" class="btn-gold" style="padding: 20px 48px; border-radius: 100px; display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.2em;">
                         <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        Agendar via WhatsApp
+                        Agendar consulta
                     </a>
                     <a href="javascript:void(0)" onclick="navigateTo('domo-internal')" style="padding: 20px 48px; border-radius: 100px; color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.3); text-decoration: none; font-size: 10px; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase;">Locação de Salas</a>
                 </div>
@@ -544,7 +615,6 @@
         </section>
     </main>
 
-    <!-- -->
     <!-- ── 2. PAGE: DOMO BUSINESS INTERNAL (COWORKING SAÚDE) ── -->
     <div id="page-domo-internal" class="page-section">
         <header class="category-header" style="background: var(--ink); color: white; padding-bottom: 120px;">
@@ -562,22 +632,22 @@
             <div class="container">
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
                     <div class="luxury-card" style="padding: 48px 32px; border-radius: 20px; text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 20px;">📍</div>
+                        <div style="margin-bottom: 24px; display: flex; justify-content: center;"><svg width="32" height="32" fill="none" stroke="var(--gold-mid)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg></div>
                         <h4 class="serif" style="font-size: 1.5rem; margin-bottom: 12px;">Localização Privilegiada</h4>
                         <p style="font-size: 14px; color: var(--text-muted);">Acesso estratégico às principais vias do ABC.</p>
                     </div>
                     <div class="luxury-card" style="padding: 48px 32px; border-radius: 20px; text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 20px;">🏢</div>
+                        <div style="margin-bottom: 24px; display: flex; justify-content: center;"><svg width="32" height="32" fill="none" stroke="var(--gold-mid)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z"/></svg></div>
                         <h4 class="serif" style="font-size: 1.5rem; margin-bottom: 12px;">Salas Equipadas</h4>
                         <p style="font-size: 14px; color: var(--text-muted);">Infraestrutura pronta para diversas especialidades.</p>
                     </div>
                     <div class="luxury-card" style="padding: 48px 32px; border-radius: 20px; text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 20px;">📅</div>
+                        <div style="margin-bottom: 24px; display: flex; justify-content: center;"><svg width="32" height="32" fill="none" stroke="var(--gold-mid)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z"/></svg></div>
                         <h4 class="serif" style="font-size: 1.5rem; margin-bottom: 12px;">Planos por Turno</h4>
                         <p style="font-size: 14px; color: var(--text-muted);">Flexibilidade operacional para sua agenda.</p>
                     </div>
                     <div class="luxury-card" style="padding: 48px 32px; border-radius: 20px; text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 20px;">☕</div>
+                        <div style="margin-bottom: 24px; display: flex; justify-content: center;"><svg width="32" height="32" fill="none" stroke="var(--gold-mid)" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg></div>
                         <h4 class="serif" style="font-size: 1.5rem; margin-bottom: 12px;">Recepção Acolhedora</h4>
                         <p style="font-size: 14px; color: var(--text-muted);">Conforto para seu paciente desde o primeiro contato.</p>
                     </div>
@@ -585,15 +655,47 @@
             </div>
         </section>
 
+        <!-- GALERIA DE FOTOS -->
         <section style="padding: 80px 0; background: var(--stone-light);">
             <div class="container">
+                <div class="reveal" style="text-align: center; margin-bottom: 48px;">
+                    <h2 class="serif" style="font-size: clamp(2.2rem, 3.5vw, 3rem); font-weight: 300;">Conheça os <em class="gold-text">Ambientes.</em></h2>
+                    <p style="color: var(--text-muted);">Um tour visual pela infraestrutura do Domo Business e nossa clínica.</p>
+                </div>
+                
+                <div class="reveal" style="position: relative; max-width: 1000px; margin: 0 auto; aspect-ratio: 16/9; border-radius: 24px; overflow: hidden; box-shadow: 0 40px 100px -20px rgba(52, 58, 64, 0.2);">
+                    
+                    <!-- Imagens da Galeria -->
+                    <img class="domo-slide active" src="domotorres01.jpg" alt="Consultório Odontológico">
+                    <img class="domo-slide" src="domotorres04.jpg" alt="Edifício Domo Business">
+                    <img class="domo-slide" src="domotorres05.jpg" alt="Sala de Atendimento Premium">
+                    <img class="domo-slide" src="domotorres06.jpg" alt="Recepção e Área de Espera">
+
+                    <!-- Controles -->
+                    <button class="gallery-btn prev" onclick="changeSlide(-1)">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <button class="gallery-btn next" onclick="changeSlide(1)">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+                    </button>
+
+                    <!-- Botão Expandir -->
+                    <button class="gallery-expand" onclick="openLightbox()">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h6M4 4v6M20 4h-6M20 4v6M4 20h6M4 20v-6M20 20h-6M20 20v-6"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding: 100px 0; background: white;">
+            <div class="container">
                 <div class="flex-grid">
-                    <div>
+                    <div class="reveal">
                         <h3 class="serif" style="font-size: 2.2rem; margin-bottom: 32px;">Um polo de saúde <br><em class="gold-text">estratégico e de alto padrão.</em></h3>
                         <p style="line-height: 1.8; color: var(--ink-soft); margin-bottom: 24px;">O Domo Business é um dos empreendimentos mais modernos da região do ABC Paulista, localizado em São Bernardo do Campo. Ele se destaca por reunir, em um único complexo, infraestrutura corporativa, serviços e espaços voltados para saúde, negócios e atendimento ao público com alto padrão.</p>
                         <p style="line-height: 1.8; color: var(--ink-soft); margin-bottom: 24px;">O Domo tem se consolidado como um polo de saúde, favorecendo o conceito de atendimento integrado. Estar aqui não é apenas uma escolha operacional, mas também estratégica. O ambiente transmite: <strong>Profissionalismo, Credibilidade e Modernidade.</strong></p>
                     </div>
-                    <div style="background: white; padding: 48px; border-radius: 24px; border: 1px solid var(--stone-mid);">
+                    <div class="reveal" style="background: var(--stone-light); padding: 48px; border-radius: 24px; border: 1px solid var(--stone-mid);">
                         <h4 class="serif gold-text" style="font-size: 1.6rem; margin-bottom: 24px;">Infraestrutura do Prédio</h4>
                         <ul style="list-style: none; display: flex; flex-direction: column; gap: 16px;">
                             <li style="display: flex; gap: 12px; font-size: 14px;"><svg width="18" height="18" fill="none" stroke="var(--gold-mid)" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Segurança 24h e controle de acesso biométrico</li>
@@ -606,15 +708,15 @@
             </div>
         </section>
 
-        <section style="padding: 100px 0; background: white;">
+        <section style="padding: 100px 0; background: var(--cream);">
             <div class="container">
-                <div style="text-align: center; margin-bottom: 64px;">
+                <div class="reveal" style="text-align: center; margin-bottom: 64px;">
                     <h2 class="serif" style="font-size: 3rem; font-weight: 300;">Estrutura da <em class="gold-text">Sala 309.</em></h2>
                     <p style="color: var(--text-muted);">Pronta para operar com máxima biossegurança.</p>
                 </div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 40px;">
-                    <div>
+                    <div class="reveal">
                         <h4 class="serif gold-text" style="font-size: 1.5rem; border-bottom: 1px solid var(--stone-mid); padding-bottom: 12px;">Recepção Acolhedora</h4>
                         <ul class="equip-list">
                             <li>Café, chá, água, biscoitos</li>
@@ -623,7 +725,7 @@
                             <li>Agendamento</li>
                         </ul>
                     </div>
-                    <div>
+                    <div class="reveal">
                         <h4 class="serif gold-text" style="font-size: 1.5rem; border-bottom: 1px solid var(--stone-mid); padding-bottom: 12px;">Sala de Atendimento</h4>
                         <ul class="equip-list">
                             <li>Mesa e cadeiras</li>
@@ -634,7 +736,7 @@
                             <li>Ar condicionado</li>
                         </ul>
                     </div>
-                    <div style="grid-column: 1 / -1;">
+                    <div class="reveal" style="grid-column: 1 / -1;">
                         <h4 class="serif gold-text" style="font-size: 1.5rem; border-bottom: 1px solid var(--stone-mid); padding-bottom: 12px;">Biossegurança e Esterilização</h4>
                         <ul class="equip-list" style="grid-template-columns: repeat(4, 1fr);">
                             <li>Cuba ultrassônica</li>
@@ -645,14 +747,13 @@
                     </div>
                 </div>
 
-                <div style="margin-top: 80px; text-align: center;">
+                <div class="reveal" style="margin-top: 80px; text-align: center;">
                     <a href="https://wa.me/551199999999" class="btn-gold" style="padding: 22px 64px; border-radius: 100px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Agendar visita ou locação</a>
                 </div>
             </div>
         </section>
     </div>
 
-    <!-- -->
     <!-- ── 3. PAGE: ODONTOLOGIA ── -->
     <div id="page-odonto" class="page-section">
         <header class="category-header">
@@ -706,23 +807,24 @@
             </a>
             <div style="max-width: 800px;">
                 <div id="detail-category" style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.4em; color: var(--text-faint); margin-bottom: 16px;">Categoria</div>
-                <!-- FIX: Titulo agora usa clamp para evitar estouro em mobile -->
                 <h1 id="detail-title" class="serif gold-text" style="font-size: clamp(2.5rem, 8vw, 4.5rem); font-weight: 300; margin-bottom: 32px;">Título</h1>
                 <div id="detail-desc" style="font-size: 1.2rem; line-height: 1.9; color: var(--text-muted); white-space: pre-line;">Descrição...</div>
                 <div style="margin-top: 64px; padding-top: 48px; border-top: 1px solid var(--stone-mid);">
-                    <a href="https://wa.me/551199999999" target="_blank" class="btn-gold" style="padding: 22px 56px; border-radius: 100px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Agendar Avaliação</a>
+                    <a href="https://wa.me/551199999999" target="_blank" class="btn-gold" style="padding: 22px 56px; border-radius: 100px; font-size: 11px; font-weight: 600; text-transform: uppercase;">Agendar consulta</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- -->
-    <!-- ── FOOTER COMPLETO E RESTAURADO ── -->
+    <!-- ── FOOTER ── -->
     <footer style="background: var(--ink); color: rgba(255,255,255,0.7); padding: 80px 0 40px;">
         <div class="container">
             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px; margin-bottom: 64px;" id="footerGrid">
                 <div>
-                    <div style="margin-bottom: 24px;"><span class="serif" style="font-size: 1.8rem; color: white;">RM <span class="gold-text">Clínica</span></span><div style="font-size: 8px; text-transform: uppercase; letter-spacing: 0.5em; margin-top: 4px; color: rgba(255,255,255,0.5);">Integrated Health</div></div>
+                    <!-- LOGO NO FOOTER -->
+                    <div style="margin-bottom: 24px;">
+                        <img src="logo.png" alt="RM Clínica" style="height: 64px; border-radius: 6px; background: white; padding: 6px;">
+                    </div>
                     <p style="font-size: 13px; line-height: 1.8; max-width: 280px;">Excelência clínica no coração do ABC Paulista. Cuidado integrado, ambiente premium e atendimento verdadeiramente humano.</p>
                 </div>
                 <div>
@@ -747,7 +849,7 @@
                     </div>
                 </div>
             </div>
-            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 32px; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em;">© 2025 RM Clínica Integrada · Todos os direitos reservados</div>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 32px; text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em;">© 2026 RM Clínica Integrada · Todos os direitos reservados</div>
         </div>
     </footer>
 
@@ -756,16 +858,87 @@
         <a href="https://wa.me/551199999999" target="_blank" style="display: block; position: relative; text-decoration: none;">
             <div style="position: absolute; inset: -6px; border-radius: 50%; border: 2px solid rgba(139,105,20,0.3); animation: pulse-ring 2s infinite;"></div>
             <div class="btn-gold" style="width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0;">
-                <svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                <svg width="28" height="28" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
             </div>
         </a>
     </div>
 
-    <!-- -->
+    <!-- ── LIGHTBOX (EXPANDIR FOTO) ── -->
+    <div id="lightbox" onclick="closeLightbox(event)">
+        <button style="position: absolute; top: 24px; right: 32px; background: none; border: none; color: white; font-size: 32px; cursor: pointer; z-index: 1001;" onclick="closeLightbox(event)">&times;</button>
+        <button class="gallery-btn prev" style="background: rgba(0,0,0,0.6); border: none;" onclick="changeSlide(-1); event.stopPropagation();">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <img id="lightbox-img" src="" alt="Imagem Ampliada" onclick="event.stopPropagation();">
+        <button class="gallery-btn next" style="background: rgba(0,0,0,0.6); border: none;" onclick="changeSlide(1); event.stopPropagation();">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+    </div>
+
+    <!-- ── SCRIPTS ── -->
     <script>
+        // Função do Seletor de Fontes
+        function changeFontTheme(theme) {
+            const root = document.documentElement;
+            if (theme === 'modern') {
+                root.style.setProperty('--font-base', "'Inter', sans-serif");
+                root.style.setProperty('--font-serif', "'Playfair Display', serif");
+            } else if (theme === 'elegant') {
+                root.style.setProperty('--font-base', "'Montserrat', sans-serif");
+                root.style.setProperty('--font-serif', "'Lora', serif");
+            } else if (theme === 'luxury') {
+                root.style.setProperty('--font-base', "'Poppins', sans-serif");
+                root.style.setProperty('--font-serif', "'Cinzel', serif");
+            } else if (theme === 'classic') {
+                root.style.setProperty('--font-base', "'Lato', sans-serif");
+                root.style.setProperty('--font-serif', "'Merriweather', serif");
+            } else {
+                root.style.setProperty('--font-base', "'Jost', sans-serif");
+                root.style.setProperty('--font-serif', "'Cormorant Garamond', Georgia, serif");
+            }
+        }
+
+        // --- LÓGICA DA GALERIA (SLIDER E LIGHTBOX) ---
+        let slideIndex = 0;
+        let slideInterval;
+        const slides = document.querySelectorAll('.domo-slide');
+        const lbImg = document.getElementById('lightbox-img');
+
+        function showSlide(n) {
+            slides.forEach(s => s.classList.remove('active'));
+            slideIndex = (n + slides.length) % slides.length;
+            slides[slideIndex].classList.add('active');
+            if (lbImg) lbImg.src = slides[slideIndex].src;
+        }
+
+        function changeSlide(step) {
+            showSlide(slideIndex + step);
+            resetInterval();
+        }
+
+        function openLightbox() {
+            document.getElementById('lightbox').classList.add('open');
+            lbImg.src = slides[slideIndex].src;
+            resetInterval(); // Pausa a rotação se necessário, ou reinicia
+        }
+
+        function closeLightbox(event) {
+            // Fecha se clicou no fundo ou no botão de fechar, mas não na imagem
+            if (!event || event.target.id === 'lightbox' || event.target.tagName.toLowerCase() === 'button') {
+                document.getElementById('lightbox').classList.remove('open');
+            }
+        }
+
+        function resetInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(() => changeSlide(1), 5000); // Troca a cada 5 segundos
+        }
+        
+        // Iniciar Slider
+        if(slides.length > 0) resetInterval();
+
         // BANCO DE DADOS COMPLETO - TODAS AS 29 ESPECIALIDADES
         const specialties = {
-            // ODONTOLOGIA (17 items)
             "odonto-01": { cat: "Odontologia", title: "Clínico Geral", desc: "Atendimento odontológico completo para prevenção, diagnóstico e tratamentos." },
             "odonto-02": { cat: "Odontologia", title: "Harmonização Facial", desc: "Conjunto de procedimentos estéticos e funcionais que buscam equilibrar traços faciais, melhorar contornos e valorizar a estética natural do paciente com segurança e individualização." },
             "odonto-03": { cat: "Odontologia", title: "Clareamento Dental", desc: "Procedimento estético destinado a clarear os dentes de forma segura e controlada." },
@@ -784,7 +957,6 @@
             "odonto-16": { cat: "Odontologia", title: "Laserterapia Odontológica", desc: "Tecnologia utilizada para acelerar cicatrização, reduzir inflamações, aliviar dores e auxiliar em tratamentos pós-operatórios." },
             "odonto-17": { cat: "Odontologia", title: "Odontologia Preventiva", desc: "Foco na prevenção de doenças bucais através de acompanhamento periódico, limpeza profissional, orientação de higiene e diagnóstico precoce, promovendo saúde a longo prazo." },
 
-            // SAÚDE INTEGRADA (10 items)
             "saude-01": { cat: "Saúde Integrada", title: "Clínica Médica", desc: "Atendimento voltado à prevenção, diagnóstico e tratamento clínico de diversas condições de saúde." },
             "saude-02": { cat: "Saúde Integrada", title: "Nutrição Clínica e Esportiva", desc: "Planejamento alimentar personalizado voltado à saúde, performance, emagrecimento, ganho de massa muscular e melhoria da qualidade de vida." },
             "saude-03": { cat: "Saúde Integrada", title: "Endocrinologia", desc: "Diagnóstico e tratamento de alterações hormonais e metabólicas, incluindo tireoide, diabetes, obesidade e distúrbios hormonais." },
@@ -796,7 +968,6 @@
             "saude-09": { cat: "Saúde Integrada", title: "Acupuntura", desc: "Terapia integrativa que utiliza estímulos em pontos específicos do corpo para auxiliar no equilíbrio físico e emocional, alívio de dores e melhora do bem-estar." },
             "saude-10": { cat: "Saúde Integrada", title: "Gastroenterologia", desc: "Diagnóstico e tratamento de doenças do sistema digestivo, incluindo estômago, intestino, fígado e alterações gastrointestinais." },
 
-            // BEM-ESTAR (2 items)
             "bem-01": { cat: "Bem-Estar", title: "Biomedicina Estética", desc: "Procedimentos estéticos voltados ao rejuvenescimento, cuidados faciais e corporais, promovendo harmonia, autoestima e bem-estar." },
             "bem-02": { cat: "Bem-Estar", title: "Estética Corporal", desc: "Tratamentos voltados à melhora do contorno corporal, flacidez, gordura localizada, celulite e qualidade da pele, com foco em saúde estética e autoestima." }
         };
@@ -875,6 +1046,16 @@
 
         document.getElementById('menuBtn').onclick = () => document.getElementById('mobileMenu').classList.add('open');
         document.getElementById('closeMenu').onclick = () => document.getElementById('mobileMenu').classList.remove('open');
+        
+        // Listener de teclado para o Lightbox
+        document.addEventListener('keydown', (e) => {
+            const lightbox = document.getElementById('lightbox');
+            if (lightbox.classList.contains('open')) {
+                if (e.key === 'Escape') closeLightbox();
+                if (e.key === 'ArrowRight') changeSlide(1);
+                if (e.key === 'ArrowLeft') changeSlide(-1);
+            }
+        });
     </script>
 </body>
 </html>
