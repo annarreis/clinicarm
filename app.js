@@ -1,13 +1,9 @@
 /* ============================================================
    RM CLÍNICA — app.js
    Refatoração:
+   - Nomes de fontes ajustados para linguagem profissional
    - Roteamento via hash (#/home, #/odonto…) → URLs compartilháveis
-   - Botão "voltar" do browser funciona
-   - Throttle no scroll (requestAnimationFrame)
-   - Focus trap no menu mobile
-   - Suporte completo a teclado (Esc, setas)
-   - Reveals respeitam prefers-reduced-motion
-   - Sem onclick inline
+   - Suporte completo a teclado e reveals otimizados
    ============================================================ */
 
 (() => {
@@ -45,7 +41,7 @@
     'saude-10':   { cat: 'Saúde Integrada', catRoute: 'saude',    title: 'Gastroenterologia', desc: 'Diagnóstico e tratamento de doenças do sistema digestivo, incluindo estômago, intestino, fígado e alterações gastrointestinais.' },
 
     'bem-01':     { cat: 'Bem-Estar',       catRoute: 'bemestar', title: 'Biomedicina Estética', desc: 'Procedimentos estéticos voltados ao rejuvenescimento, cuidados faciais e corporais, promovendo harmonia, autoestima e bem-estar.' },
-    'bem-02':     { cat: 'Bem-Estar',       catRoute: 'bemestar', title: 'Estética Corporal', desc: 'Tratamentos voltados à melhora do contorno corporal, flacidez, gordura localizada, celulite e qualidade da pele, com foco em saúde estética e autoestima.' }
+    'bem-02':     { cat: 'Bem-Estar',       catRoute: 'bemestar', title: 'Estética Corporal', desc: 'Tratamentos voltados à melhora do contorno corporal, flacidez, gordura localizada, celulite e qualidade da pele, com foco em resultados reais.' }
   };
 
   // ─── ROUTING (hash-based) ───
@@ -66,7 +62,6 @@
     const target = document.getElementById('page-' + route);
     if (target) target.hidden = false;
 
-    // Active nav state
     document.querySelectorAll('[data-route]').forEach(link => {
       const isActive = link.dataset.route === route;
       link.classList.toggle('active', isActive);
@@ -74,7 +69,6 @@
       else link.removeAttribute('aria-current');
     });
 
-    // Render detail page
     if (route === 'detail' && param && SPECIALTIES[param]) {
       const data = SPECIALTIES[param];
       document.getElementById('detail-cat').textContent = data.cat;
@@ -90,13 +84,12 @@
       document.title = 'RM Clínica · Odontologia, Saúde Integrada e Bem-Estar | Domo Business · SBC';
     }
 
-    // Update page meta
     const pageMeta = {
       home:       'Excelência em saúde no ABC Paulista. Odontologia, especialidades médicas e bem-estar.',
-      odonto:     'Odontologia premium em São Bernardo. Estética, implantes e reabilitação oral.',
+      odonto:     'Odontologia em São Bernardo. Estética, implantes e reabilitação oral.',
       saude:      'Especialidades médicas e abordagem integrada para sua longevidade.',
       bemestar:   'Biomedicina estética e cuidados corporais no ABC Paulista.',
-      coworking:  'Coworking saúde no Domo Business. Salas equipadas para profissionais.'
+      coworking:  'Coworking saúde no Domo Business. Salas estruturadas para profissionais.'
     };
     if (pageMeta[route]) {
       const desc = document.querySelector('meta[name="description"]');
@@ -114,7 +107,7 @@
 
   window.addEventListener('hashchange', handleRoute);
 
-  // ─── RENDER GRIDS ───
+// ─── RENDER GRIDS ───
   function renderSpecGrids() {
     const grids = {
       'grid-odonto': 'odonto',
@@ -131,20 +124,25 @@
           const card = document.createElement('button');
           card.type = 'button';
           card.className = 'spec-card';
-          card.setAttribute('aria-label', `Ver detalhes sobre ${item.title}`);
+          card.setAttribute('aria-label', `Mais informações sobre ${item.title}`);
           card.innerHTML = `
             <h3 class="serif">${item.title}</h3>
             <p>${item.desc}</p>
-            <span class="spec-card-cta">Ver detalhes →</span>
+            <span class="spec-card-cta">Mais informações →</span>
           `;
+          
+          // Novo evento: Abre o WhatsApp com texto formatado e codificado para a URL
           card.addEventListener('click', () => {
-            location.hash = `#/detail/${id}`;
+            const mensagem = `Olá! 😊 Gostaria de agendar uma consulta da especialidade ${item.title}. Poderia me passar mais informações sobre horários disponíveis e valores?`;
+            const whatsappUrl = `https://wa.me/5511999999999?text=${encodeURIComponent(mensagem)}`;
+            window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
           });
+          
           container.appendChild(card);
         });
     });
   }
-
+  
   // ─── MOBILE MENU ───
   const menuBtn = document.getElementById('menuBtn');
   const mobileMenu = document.getElementById('mobileMenu');
@@ -156,7 +154,6 @@
     mobileMenu.hidden = false;
     menuBtn.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
-    // Focus primeiro link após render
     requestAnimationFrame(() => {
       const firstLink = mobileMenu.querySelector('a, button');
       if (firstLink) firstLink.focus();
@@ -173,7 +170,6 @@
   if (menuBtn) menuBtn.addEventListener('click', openMobileMenu);
   if (closeMenuBtn) closeMenuBtn.addEventListener('click', closeMobileMenu);
 
-  // Esc fecha menu
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       if (!mobileMenu.hidden) closeMobileMenu();
@@ -181,7 +177,6 @@
     }
   });
 
-  // Focus trap no menu mobile
   mobileMenu?.addEventListener('keydown', (e) => {
     if (e.key !== 'Tab') return;
     const focusable = mobileMenu.querySelectorAll('a, button');
@@ -194,7 +189,7 @@
     }
   });
 
-  // ─── SCROLL (throttle via rAF) ───
+  // ─── SCROLL ───
   const nav = document.getElementById('mainNav');
   const heroImg = document.getElementById('heroImg');
   const waFloat = document.getElementById('waFloat');
@@ -216,7 +211,7 @@
     }
   }, { passive: true });
 
-  // ─── REVEAL ON SCROLL (uma vez só) ───
+  // ─── REVEAL ON SCROLL ───
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduceMotion) {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
@@ -225,7 +220,7 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          observer.unobserve(entry.target); // dispara uma vez só
+          observer.unobserve(entry.target);
         }
       });
     }, { threshold: 0.08, rootMargin: '0px 0px -50px 0px' });
@@ -296,7 +291,6 @@
     setTimeout(() => lightbox.hidden = true, 400);
   }
 
-  // Event delegation para galeria
   document.addEventListener('click', (e) => {
     const galleryBtn = e.target.closest('[data-gallery]');
     if (galleryBtn) {
@@ -319,11 +313,9 @@
       return;
     }
 
-    // Lightbox click fora da imagem fecha
     if (e.target === lightbox) closeLightbox();
   });
 
-  // Teclado para lightbox
   document.addEventListener('keydown', (e) => {
     if (!lightbox || !lightbox.classList.contains('open')) return;
     if (e.key === 'ArrowRight') changeSlide(1);
@@ -331,41 +323,37 @@
   });
 
   // ─── FONT PICKER ───
-  // As fontes alternativas só são carregadas sob demanda (não pesam o load inicial).
-  // A escolha persiste em localStorage.
   const FONT_THEMES = {
     editorial: {
-      label: 'Editorial',
-      // Cormorant + Jost — já vêm carregadas (padrão), não precisa baixar de novo
+      label: 'Padrão',
       googleFonts: null
     },
-    haute: {
-      label: 'Haute Couture',
+    moderno: {
+      label: 'Moderno',
       googleFonts: 'family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600'
     },
-    couture: {
-      label: 'Maison',
+    elegante: {
+      label: 'Elegante',
       googleFonts: 'family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400'
     },
-    atelier: {
-      label: 'Atelier',
+    profissional: {
+      label: 'Profissional',
       googleFonts: 'family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@300;400;500;600'
     },
-    grand: {
-      label: 'Grand Hotel',
+    classico: {
+      label: 'Clássico',
       googleFonts: 'family=Cinzel:wght@400;500;600&family=Inter:wght@300;400;500;600'
     }
   };
 
   const FONT_STORAGE_KEY = 'rm-clinica-font-theme';
-  const loadedFonts = new Set(['editorial']); // padrão já está no <head>
+  const loadedFonts = new Set(['editorial']);
 
   function loadFontStylesheet(theme) {
     if (loadedFonts.has(theme)) return;
     const config = FONT_THEMES[theme];
     if (!config || !config.googleFonts) return;
 
-    // Verifica se já existe (evita duplicatas)
     if (document.querySelector(`link[data-font-theme="${theme}"]`)) {
       loadedFonts.add(theme);
       return;
@@ -376,18 +364,15 @@
     link.href = `https://fonts.googleapis.com/css2?${config.googleFonts}&display=swap`;
     link.dataset.fontTheme = theme;
     link.onload = () => loadedFonts.add(theme);
-    link.onerror = () => { /* falha silenciosa, fallback do CSS assume */ };
+    link.onerror = () => { };
     document.head.appendChild(link);
   }
 
   function applyFontTheme(theme) {
     if (!FONT_THEMES[theme]) theme = 'editorial';
 
-    // Dispara o load em background (não bloqueia)
     loadFontStylesheet(theme);
 
-    // Aplica imediatamente — o stack de font-family no CSS tem fallbacks,
-    // então a UI nunca fica em branco enquanto a fonte carrega
     Object.keys(FONT_THEMES).forEach(t => document.body.classList.remove('font-' + t));
     document.body.classList.add('font-' + theme);
 
@@ -395,7 +380,7 @@
       btn.setAttribute('aria-checked', btn.dataset.theme === theme ? 'true' : 'false');
     });
 
-    try { localStorage.setItem(FONT_STORAGE_KEY, theme); } catch (e) { /* ok */ }
+    try { localStorage.setItem(FONT_STORAGE_KEY, theme); } catch (e) { }
   }
 
   function initFontPicker() {
@@ -404,12 +389,10 @@
     const picker = document.getElementById('fontPicker');
     if (!toggle || !panel) return;
 
-    // Pré-carrega as fontes ao passar o mouse sobre o botão (prefetch suave)
     let prefetched = false;
     toggle.addEventListener('mouseenter', () => {
       if (prefetched) return;
       prefetched = true;
-      // Prefetch apenas das URLs (browser cacheia, mas não aplica ainda)
       Object.entries(FONT_THEMES).forEach(([theme, config]) => {
         if (!config.googleFonts || loadedFonts.has(theme)) return;
         const link = document.createElement('link');
@@ -420,7 +403,6 @@
       });
     }, { once: true });
 
-    // Toggle do painel — stopPropagation evita que o click-outside feche imediatamente
     toggle.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = !panel.hidden;
@@ -428,7 +410,6 @@
       toggle.setAttribute('aria-expanded', String(!isOpen));
     });
 
-    // Fecha ao clicar fora — só se o painel está aberto E o clique foi realmente fora
     document.addEventListener('click', (e) => {
       if (panel.hidden) return;
       if (picker.contains(e.target)) return;
@@ -436,7 +417,6 @@
       toggle.setAttribute('aria-expanded', 'false');
     });
 
-    // Esc fecha
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !panel.hidden) {
         panel.hidden = true;
@@ -445,16 +425,14 @@
       }
     });
 
-    // Cliques nas opções
     panel.querySelectorAll('.font-option').forEach(btn => {
       btn.addEventListener('click', () => {
         applyFontTheme(btn.dataset.theme);
       });
     });
 
-    // Restaura preferência salva
     let saved = 'editorial';
-    try { saved = localStorage.getItem(FONT_STORAGE_KEY) || 'editorial'; } catch (e) { /* ok */ }
+    try { saved = localStorage.getItem(FONT_STORAGE_KEY) || 'editorial'; } catch (e) { }
     applyFontTheme(saved);
   }
 
@@ -467,13 +445,12 @@
     buildDots();
     resetSlideInterval();
     initFontPicker();
-    handleRoute(); // entra na rota correta da URL
+    handleRoute();
   }
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
-    // DOM já está pronto (script com defer ou cache)
     init();
   }
 })();
